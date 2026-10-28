@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="轻量个人待办清单，离线使用，本地保存，随时备份。">
+<title>xin666 · 把今天理清</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:#203b35;background:#f4f5ef;font-size:16px}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b77831;outline-offset:3px}main{max-width:850px;margin:0 auto;padding:42px 24px}.brand{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:14px}.logo{font-weight:800;letter-spacing:2px}.local{border:1px solid #cbd8ce;border-radius:30px;padding:7px 12px;color:#426b53}header{padding:54px 0 24px}.eyebrow{color:#6a766b;font-size:13px;letter-spacing:2px}h1{font-size:clamp(34px,7vw,52px);letter-spacing:-2px;margin:10px 0 12px}p{line-height:1.7}.intro{color:#68736c;margin:0}.card{background:white;border:1px solid #e0e4db;border-radius:20px;padding:25px;box-shadow:0 12px 35px #203b3506}.add{display:flex;gap:10px}input[type=text],input[type=search],select{border:1px solid #d7dfd5;border-radius:10px;padding:13px;background:#fafbf8;color:#203b35;min-width:0}input[type=text]{flex:1}.primary{border:0;background:#254f41;color:white;border-radius:10px;padding:13px 21px}.tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:26px 0 16px}.filters{display:flex;gap:5px}.filters button{border:0;padding:9px 13px;border-radius:8px;background:transparent;color:#68736c}.filters button[aria-pressed=true]{background:#e5eee5;color:#254f41;font-weight:600}input[type=search]{flex:1;width:150px;padding:9px 12px}.summary{color:#68736c;font-size:14px;margin:15px 0}progress{width:100%;height:6px;accent-color:#42785d;display:block;margin:16px 0 24px}ul{padding:0;margin:0;list-style:none}li{display:flex;gap:12px;align-items:center;padding:17px 0;border-bottom:1px solid #edf0e8}li:last-child{border:0}.task{flex:1;overflow-wrap:anywhere;line-height:1.5}.done .task{text-decoration:line-through;color:#859087}input[type=checkbox]{width:20px;height:20px;accent-color:#254f41;flex-shrink:0}.subtle{background:transparent;border:1px solid #dce3d8;border-radius:8px;color:#596d61;padding:7px 10px;font-size:13px}.danger{color:#9c4938}.empty{text-align:center;padding:44px 14px;color:#748074}.empty strong{display:block;font-size:20px;color:#395b49;margin-bottom:10px}.bottom{display:flex;gap:9px;flex-wrap:wrap;justify-content:space-between;margin-top:24px}.backup{display:flex;gap:8px;flex-wrap:wrap}footer{font-size:13px;color:#7c877c;padding:24px 0;line-height:1.7}#notice{font-size:14px;min-height:24px;margin:12px 0;color:#805329}dialog{border:1px solid #d5ded1;border-radius:18px;padding:25px;max-width:440px;width:calc(100% - 32px);color:#203b35}dialog::backdrop{background:#132f2870}dialog input{width:100%}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}h2{margin-top:0;font-size:22px}.hidden{display:none}@media(max-width:550px){main{padding:24px 16px}header{padding-top:36px}.card{padding:18px}.add{flex-wrap:wrap}.add input{flex-basis:100%}.add button{width:100%}.tools input{flex-basis:100%}li{gap:8px}.subtle{padding:8px}.brand{font-size:12px}}
+</style>
+</head>
+<body><main>
+<div class="brand"><span class="logo">xin666 / 清单</span><span class="local">● 离线可用 · 本地保存</span></div>
+<header><div class="eyebrow">少一点杂乱，多一点专注</div><h1>把今天理清。</h1><p class="intro">记下要做的事，然后一件一件完成。</p></header>
+<section class="card" aria-label="个人待办清单">
+<form id="add-form" class="add"><input id="new-task" type="text" placeholder="接下来想完成什么？" aria-label="新任务" maxlength="200" required autocomplete="off"><button class="primary" type="submit">＋ 添加任务</button></form>
+<p id="notice" role="status" aria-live="polite"></p>
+<div class="summary" id="summary" aria-live="polite"></div><progress id="progress" max="1" value="0" aria-label="完成进度"></progress>
+<div class="tools"><div class="filters" aria-label="任务状态筛选"><button type="button" data-filter="all" aria-pressed="true">全部</button><button type="button" data-filter="active" aria-pressed="false">待完成</button><button type="button" data-filter="done" aria-pressed="false">已完成</button></div><input id="search" type="search" placeholder="搜索任务…" aria-label="搜索任务"></div>
+<ul id="list" aria-label="任务列表"></ul><div id="empty" class="empty"></div>
+<div class="bottom"><button class="subtle danger" id="clear" type="button">清理已完成</button><div class="backup"><button id="export" class="subtle" type="button">导出备份</button><button id="import" class="subtle" type="button">导入备份</button><input class="hidden" id="file" type="file" accept=".json,application/json" aria-label="选择备份文件"></div></div>
+</section><footer>数据仅保存在此浏览器，不会上传。请定期导出备份。<br>更换浏览器、文件位置或访问地址前，请先备份，再在新位置导入。</footer>
+<dialog id="edit-dialog"><form id="edit-form"><h2>编辑任务</h2><label for="edit-text">任务内容（最多 200 字）</label><p><input id="edit-text" type="text" maxlength="200" required></p><div class="dialog-actions"><button id="cancel-edit" class="subtle" type="button">取消</button><button class="primary" type="submit">保存</button></div></form></dialog>
+</main>
+<script id="core">
+'use strict';
+globalThis.TodoCore = (() => {
+  const KEY = 'xin666.tasks.v1';
+  function title(value) {
+    if (typeof value !== 'string' || !value.trim() || value.trim().length > 200) throw new Error('请输入 1–200 字的任务内容。');
+    return value.trim();
+  }
+  function validate(value) {
+    if (!value || value.version !== 1 || !Array.isArray(value.tasks) || value.tasks.length > 10000) throw new Error('备份格式无效，或任务超过 10000 条。');
+    const ids = new Set();
+    return value.tasks.map(t => {
+      if (!t || typeof t.id !== 'string' || !t.id || t.id.length > 100 || ids.has(t.id) || typeof t.done !== 'boolean') throw new Error('备份中的任务格式无效或编号重复。');
+      ids.add(t.id);
+      return {id:t.id, title:title(t.title), done:t.done};
+    });
+  }
+  function encode(tasks) { return JSON.stringify({version:1,tasks},null,2); }
+  function read(storage) { const raw=storage.getItem(KEY); return raw === null ? [] : validate(JSON.parse(raw)); }
+  function write(storage,tasks) { storage.setItem(KEY,encode(validate({version:1,tasks}))); }
+  function visible(tasks,filter,query) { return tasks.filter(t => (filter==='all' || (filter==='done' ? t.done : !t.done)) && t.title.toLocaleLowerCase().includes(query.toLocaleLowerCase().trim())); }
+  return {KEY,title,validate,encode,read,write,visible};
+})();
+</script>
+<script>
+'use strict';
+(() => {
+  const C=TodoCore, $=id=>document.getElementById(id);
+  let tasks=[],filter='all',editing=null,storageHealthy=true;
+  function notice(message){ $('notice').textContent=message; }
+  try { tasks=C.read(localStorage); } catch { storageHealthy=false; notice('无法读取本地数据。为保护原数据，已暂停保存；请先导出当前清单或导入有效备份恢复。'); }
+  function commit(next){
+    if(!storageHealthy){notice('保存已暂停。请导入有效备份恢复，原数据不会被自动覆盖。');return false;}
+    try {C.write(localStorage,next);tasks=next;notice('已保存到此浏览器。');render();return true;}
+    catch {notice('保存失败，可能是浏览器限制或空间不足。本次修改未生效，请先导出备份。');return false;}
+  }
+  function render(){
+    const done=tasks.filter(t=>t.done).length;
+    $('summary').textContent=`${tasks.length-done} 项待完成 · ${done} / ${tasks.length} 项已完成`;
+    $('progress').max=tasks.length || 1;$('progress').value=done;$('clear').disabled=!done;
+    const shown=C.visible(tasks,filter,$('search').value);$('list').replaceChildren();
+    for(const t of shown){
+      const li=document.createElement('li');li.className=t.done?'done':'';
+      const box=document.createElement('input');box.type='checkbox';box.checked=t.done;box.setAttribute('aria-label',`${t.done?'标为待完成':'完成任务'}：${t.title}`);
+      box.addEventListener('change',()=>{if(!commit(tasks.map(x=>x.id===t.id?{...x,done:!x.done}:x)))box.checked=t.done;});
+      const text=document.createElement('span');text.className='task';text.textContent=t.title;
+      const edit=document.createElement('button');edit.type='button';edit.className='subtle';edit.textContent='编辑';edit.setAttribute('aria-label',`编辑：${t.title}`);edit.onclick=()=>{editing=t.id;$('edit-text').value=t.title;$('edit-dialog').showModal();$('edit-text').focus();};
+      const del=document.createElement('button');del.type='button';del.className='subtle danger';del.textContent='删除';del.setAttribute('aria-label',`删除：${t.title}`);del.onclick=()=>{if(confirm(`删除任务“${t.title}”？`))commit(tasks.filter(x=>x.id!==t.id));};
+      li.append(box,text,edit,del);$('list').append(li);
+    }
+    $('empty').hidden=shown.length>0;$('empty').replaceChildren();
+    const heading=document.createElement('strong');heading.textContent=tasks.length?'这里暂时没有匹配的任务':'从一件小事开始';
+    $('empty').append(heading,document.createTextNode(tasks.length?'试试切换筛选条件或搜索词。':'在上方添加第一项任务，让今天有个清晰的开始。'));
+    document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));
+  }
+  $('add-form').onsubmit=e=>{e.preventDefault();try{if(tasks.length>=10000)throw new Error('任务已达 10000 条，请先清理或备份。');const text=C.title($('new-task').value);const id=globalThis.crypto?.randomUUID?.() || Date.now().toString(36)+Math.random().toString(36).slice(2);if(commit([{id,title:text,done:false},...tasks])){$('new-task').value='';$('new-task').focus();}}catch(err){notice(err.message);}};
+  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;render();});$('search').oninput=render;
+  $('edit-form').onsubmit=e=>{e.preventDefault();try{const text=C.title($('edit-text').value);if(commit(tasks.map(t=>t.id===editing?{...t,title:text}:t)))$('edit-dialog').close();}catch(err){notice(err.message);}};
+  $('cancel-edit').onclick=()=>$('edit-dialog').close();
+  $('clear').onclick=()=>{if(confirm('清理所有已完成任务？此操作无法撤销，建议先导出备份。'))commit(tasks.filter(t=>!t.done));};
+  $('export').onclick=()=>{const url=URL.createObjectURL(new Blob([C.encode(tasks)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='xin666-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('已发起备份下载，请在浏览器下载列表确认文件。');};
+  $('import').onclick=()=>$('file').click();
+  $('file').onchange=async()=>{const file=$('file').files[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('文件超过 10 MB，请选择有效备份。');const next=C.validate(JSON.parse(await file.text()));if(confirm(`导入 ${next.length} 项任务并替换当前清单？请确认已导出当前清单。`)){C.write(localStorage,next);storageHealthy=true;tasks=next;render();notice('备份已导入并保存。');}}catch(err){notice('导入失败，当前清单未改变：'+err.message);}finally{$('file').value='';}};
+  window.addEventListener('storage',e=>{if(e.key===C.KEY || e.key===null){try{tasks=C.read(localStorage);storageHealthy=true;render();notice('清单已同步其他标签页的修改。');}catch{storageHealthy=false;notice('其他标签页的数据无法读取，已暂停保存。');}}});
+  render();
+})();
+</script></body></html>
